@@ -36,7 +36,6 @@ terraform.rc
 # Project specific directories
 .idea
 .ssh
+.terraform
 volumes
 sources
-
-/templates/
