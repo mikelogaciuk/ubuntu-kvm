@@ -1,0 +1,59 @@
+# Description: Rakefile for Ubuntu QEMU/KVM virtual machine
+
+desc 'Generate keys'
+namespace :generate do
+  task :folders do
+    `mkdir -p sources templates volumes .ssh`
+  end
+
+  desc 'Generate SSH key for k3s virtual machine'
+  task :ssh do
+    `ssh-keygen -t rsa -b 4096 -f $HOME/.ssh/ubuntu -N ""`
+    `ln -s $HOME/.ssh/ubuntu.pub #{Dir.pwd}/.ssh/`
+  end
+end
+
+desc 'Manage cloud image for Ubuntu QEMU/KVM machine'
+namespace :image do
+  desc 'Fetch cloud image as source for KVM machine'
+  task :fetch do
+    `wget -O ./sources/ubuntu.qcow2 https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img`
+    `wget -O ./sources/ubuntu.qcow2.md5 https://cloud-images.ubuntu.com/jammy/current/MD5SUMS`
+    `qemu-img resize ./sources/ubuntu.qcow2 30G`
+  end
+end
+
+desc 'Manage pool of the Ubuntu virtual machine'
+namespace :pool do
+  task :create do
+    pwd = Dir.pwd
+    `sudo virsh pool-define-as --name ubuntu --type dir --target #{Dir.pwd}/volumes`
+    `sudo virsh pool-start ubuntu`
+    `sudo virsh pool-autostart ubuntu`
+  end
+
+  task :list do
+    puts `\n\n sudo virsh pool-list`
+  end
+
+  task :destroy do
+    `sudo virsh pool-destroy ubuntu`
+    `sudo virsh pool-undefine ubuntu`
+    `rm -rf ./volumes/ubuntu`
+  end
+end
+
+desc 'Teardown'
+namespace :teardown do
+  desc 'Destroy virtual machine'
+  task :vm do
+    `terraform destroy --auto-approve`
+  end
+
+  desc 'Destroy key'
+  task :ssh do
+    `rm -rf ~/.ssh/ubuntu*`
+    `rm -rf .ssh/ubuntu*`
+    `ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.122.89"`
+  end
+end
