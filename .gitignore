@@ -39,3 +39,4 @@ terraform.rc
 .terraform
 volumes
 sources
+.terraform.lock.hcl
