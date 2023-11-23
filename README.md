@@ -52,7 +52,7 @@ ssh ubuntu@192.168.122.89
 ssh -t ubuntu@192.168.122.89 bash -l
 ```
 
-## Check if K3S is running
+## Check if machine is running
 
 In order to check if cloud-init has done its job, type:
 
