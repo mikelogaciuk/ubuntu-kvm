@@ -33,7 +33,9 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-./volumes
-./sources
-./.ssh
-./.idea
+# Project specific directories
+.idea
+.ssh
+volumes
+sources
+
